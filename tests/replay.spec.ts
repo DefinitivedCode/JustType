@@ -71,6 +71,33 @@ test('title is exactly JustType and replay automatically reproduces actual mista
   await expect(replay.locator(`[data-key="${text[1] === ' ' ? 'space' : text[1]}"]`)).toHaveAttribute('data-tone', 'neutral')
 })
 
+test('seeking to a fractional word-test endpoint includes the final character and keyboard press', async ({ page }) => {
+  await page.getByRole('button', { name: 'words', exact: true }).click()
+  await page.getByRole('button', { name: '10 words', exact: true }).click()
+  const target = (await page.getByTestId('typing-text').getAttribute('data-target'))!
+  await page.getByRole('textbox').fill(target.slice(0, -1))
+  await page.clock.runFor(1000)
+  // Real performance.now() timestamps include fractions of a millisecond.
+  await page.evaluate(() => {
+    const now = performance.now.bind(performance)
+    Object.defineProperty(performance, 'now', { configurable: true, value: () => now() + 0.25 })
+  })
+  await page.keyboard.press(target.at(-1)!)
+  await expect(page.getByTestId('results')).toBeVisible()
+  const slider = page.getByRole('slider', { name: 'Replay timeline' })
+  await expect(slider).toHaveAttribute('max', '1000.25')
+  await slider.focus()
+  await slider.press('End')
+  await page.clock.runFor(220)
+  await expect(slider).toHaveValue('1000.25')
+  await expect(page.getByTestId('replay')).toHaveAttribute('data-input', target)
+  await expect(page.locator(`.replay-section [data-key="${target.at(-1)!}"]`)).toHaveAttribute('data-tone', 'correct')
+  await slider.press('Home')
+  await page.clock.runFor(220)
+  await expect(page.getByTestId('replay')).toHaveAttribute('data-input', '')
+  await expect(page.locator('.replay-section .keycap[data-tone="correct"]')).toHaveCount(0)
+})
+
 test('pausing freezes text and keyboard; resuming and space feedback preserve the original rhythm', async ({ page }) => {
   const { text, prefix } = await recordPerformance(page)
   await page.clock.runFor(850)

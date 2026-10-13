@@ -1,19 +1,19 @@
 # JustType
 
-A minimal typing test built with Vite, React, strict TypeScript, and custom CSS. No accounts, backend, remote word API, or external font requests.
+A minimalist typing test with real-time feedback, performance statistics, and interactive typing replays.
 
 ## Features
 
-- Time tests: 10, 15, 30, 60, and 120 seconds. Word tests: 10, 25, 50, and 100 words.
-- Starts with the first letter or space. A monotonic clock controls the deadline; switching tabs does not pause a test.
-- Character-level correctness, backspace correction, an accurate caret, and a three-line viewport that follows the active line.
-- A responsive QWERTY keyboard with blue/red feedback, a spacebar, and Backspace. Real textarea input supports touch keyboards and composition; paste and drop are disabled.
-- Results with speed, historical accuracy, consistency, character counts, correction counts, and a real SVG performance chart. Chart samples are also available as a screen-reader table.
-- Automatic typing replay with the original text, mistakes, corrections, caret, and full keyboard. Pause, restart, select 0.5×–2× speed, or drag the time slider forwards and backwards to rewind the actual actions. Recordings stay in memory for the current result only.
-- Dark/light themes, per-mode personal bests, and validated local preferences.
-- Locally bundled Geist and JetBrains Mono fonts. Reduced-motion support and keyboard-accessible controls.
+- Timed tests of 10, 15, 30, 60, or 120 seconds and word-count tests of 10, 25, 50, or 100 words.
+- Live WPM, character highlighting, backspace correction, and an interactive QWERTY keyboard.
+- Results with accuracy, consistency, character counts, corrections, and a WPM performance graph.
+- Keystroke replay with the original mistakes, corrections, caret, and keyboard feedback; bidirectional timeline scrubbing and 0.5×, 1×, 1.5×, or 2× playback.
+- Keyboard shortcuts, dark and light themes, and local personal-best tracking for each mode.
+- Responsive layout, accessible controls, and reduced-motion support.
 
-## Run locally
+Tests start with the first letter or space. Preferences and personal bests stay in your browser. Replay recordings stay in memory for the current result; typing content is neither persisted nor sent to external services. Fonts and word lists are bundled locally.
+
+## Getting started
 
 Requires Node.js 22.12 or newer and npm.
 
@@ -22,64 +22,34 @@ npm ci
 npm run dev
 ```
 
-Open the printed URL (normally `http://127.0.0.1:5173`). Tap the words on touch devices to open the native keyboard if the browser blocks automatic focus.
+Build the production assets in `dist/` and preview them locally:
 
 ```sh
-npm run build       # TypeScript check + production bundle in dist/
-npm run preview     # Serve the production bundle locally
+npm run build
+npm run preview
 ```
 
-The production output is static and can be served on any static host. Word generation and fonts need no external service; a fresh page load still needs its app assets to be served. A service worker is not included.
+`wrangler.jsonc` prepares `dist/` for [Cloudflare Workers Static Assets](https://developers.cloudflare.com/workers/static-assets/) with a single-page application fallback. After building, `npx wrangler dev --local` previews that configuration locally. Building requires no Cloudflare credentials.
 
-## Verification
+## Keyboard shortcuts
+
+- **Tab, then Enter:** restart from the typing input or start the next test from the initially focused results region.
+- **Escape:** move from the typing input to the mode controls.
+- **Shift + Tab:** navigate from the typing input to the mode controls.
+- **Backspace:** correct the previous character.
+
+Standard Tab navigation works throughout the other controls.
+
+## Development checks
 
 ```sh
-npm run typecheck
-npm run lint
-npm test
-npm run check        # TypeScript, lint, unit tests, build
+npm run check
 npx playwright install chromium
-npm run test:e2e     # Chromium desktop + emulated mobile
+npm run test:e2e
 ```
 
-Playwright starts Vite or reuses the local server at port 5173. Tests use Playwright's clock to verify long tests without real-time waits, capture landing/results screenshots, and run axe WCAG accessibility checks on both themes and screens. Reports and screenshots are ignored by Git. Mobile browser emulation verifies layout and input handling; it does not replace checking a real phone's software keyboard. GitHub Actions runs these checks on pushes and pull requests.
+The checks cover TypeScript, ESLint, unit tests, the production build, and desktop and mobile browser tests. GitHub Actions runs them on pushes to `main` and pull requests.
 
-## Shortcuts and input rules
+## Technology
 
-- **Tab, then Enter:** focus Restart/Next test and immediately generate a new test. Works in the typing surface and the initially focused results region.
-- **Escape:** leave the typing input and focus the current mode control.
-- **Shift + Tab:** navigate from the input to mode controls.
-- Normal Tab navigation remains available outside the typing input. From the restart button, another Tab continues to page controls.
-- **Backspace:** remove the previous character. Native word deletion is supported when the browser sends it.
-
-Tests use a sequential character-position model. Every accepted ASCII letter (case-sensitive) or space advances one target position. An incorrect space still advances one position. Backspace removes positions; completing the last position finishes a word test even if errors remain. Uppercase letters count as incorrect against the lowercase target. Non-letter symbols, navigation keys, paste, and drop do not contribute to speed or accuracy.
-
-## Statistics
-
-Spaces count as characters; one standard word is five characters. Metrics use exact elapsed time, not the number of timer callbacks.
-
-| Metric | Definition |
-| --- | --- |
-| WPM | `(currently correct characters / 5) / elapsed minutes` |
-| Raw WPM | `(all accepted character input events / 5) / elapsed minutes` |
-| Accuracy | `correct input events / all input events × 100` |
-| Characters | Correct and incorrect characters remaining in the final input |
-| Keystrokes | All accepted character inputs, including retyped characters; excludes backspace |
-| Corrections | Incorrect characters removed with backspace |
-| Consistency | `100 × (1 − population standard deviation / mean)` of interval raw WPM, clamped to 0–100 |
-
-Accuracy is **historical keystroke accuracy**: correcting a mistake repairs visible correctness and net WPM, but does not erase the original error. Raw speed includes retyping. There are no extra/missed categories because this model does not skip positions or add characters between them.
-
-The engine records cumulative WPM and raw WPM at one-second boundaries, plus a final partial sample. It advances before each input, so delayed timer callbacks do not move inputs into earlier samples. Corrections never rewrite previous samples. Error markers use the actual input event timestamps. Consistency uses per-interval input counts, with duration-weighted final partial intervals. Fewer than two usable intervals or no typing gives an unavailable consistency score. Zero-duration tests produce finite zero speed. Live speed stays blank during the first second to avoid an unstable initial estimate.
-
-Personal bests compare unrounded net WPM within the selected mode. Tests shorter than one second are excluded. There is no accuracy threshold. The results screen also explains the metrics.
-
-## Local storage
-
-Versioned keys: `justtype.mode.v1`, `justtype.theme.v1`, and `justtype.bests.v1`. Stored settings and records are validated. Malformed JSON, unsupported modes, and blocked/full storage do not crash the app. Records stay in this browser on this device; clearing site data removes them. No typing content is stored or transmitted.
-
-## Structure
-
-`src/lib/typingEngine.ts` holds the pure state machine. `statistics.ts`, `wordGenerator.ts`, and `storage.ts` handle calculations, shuffled local word bags, and persistence. `useTypingTest` coordinates real input and the rendering clock. Components handle presentation and caret geometry; test metrics never inspect the DOM.
-
-`replay.ts` records focused input operations and physical keydown/keyup events against the same monotonic test clock. It stores exact edit snapshots and compiles searchable key intervals once, so forward and reverse reconstruction share one deterministic model. Touch/IME edits are recorded as input-source events when a browser supplies no physical key event. The key depression follows recorded keyup timing; colour feedback remains visible for at least 180ms, matching live input, and follows longer recorded holds. Missing keyups use the same 180ms fallback. Playback includes a brief final key-release tail without changing the displayed test duration. `useReplay` owns one cancellable animation frame loop; large seeks cross recorded actions in at most 180ms, including across long idle gaps.
+React, TypeScript, Vite, and custom CSS, with Vitest and Playwright for testing. Icons use Lucide; locally bundled fonts use Geist and JetBrains Mono. Font copyright and license notices are included in `public/licenses/` and copied into the production build.

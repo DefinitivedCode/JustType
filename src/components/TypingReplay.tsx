@@ -22,7 +22,7 @@ export function TypingReplay({ recording }: { recording: Recording }) {
       <TypingText target={recording.target} input={replay.state.input} focused running />
       <VirtualKeyboard feedback={replay.state.feedback} />
       <div className="replay-timeline">
-        <input type="range" aria-label="Replay timeline" min={0} max={recording.durationMs} step={1} value={target}
+        <input type="range" aria-label="Replay timeline" min={0} max={recording.durationMs} step="any" value={target}
           aria-valuetext={`${timeLabel(target)} of ${timeLabel(recording.durationMs)}`}
           style={{ '--replay-progress': `${recording.durationMs ? target / recording.durationMs * 100 : 0}%` } as CSSProperties}
           onPointerDown={replay.pause}
