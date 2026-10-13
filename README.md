@@ -53,3 +53,7 @@ The checks cover TypeScript, ESLint, unit tests, the production build, and deskt
 ## Technology
 
 React, TypeScript, Vite, and custom CSS, with Vitest and Playwright for testing. Icons use Lucide; locally bundled fonts use Geist and JetBrains Mono. Font copyright and license notices are included in `public/licenses/` and copied into the production build.
+
+## License
+
+[MIT](LICENSE).

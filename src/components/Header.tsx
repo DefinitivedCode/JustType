@@ -4,11 +4,8 @@ import type { Theme } from '../lib/types'
 export function Header({ theme, toggleTheme }: { theme: Theme; toggleTheme: () => void }) {
   return (
     <header className="header">
-      <div className="brand" aria-label="JustType">
-        <svg className="brand-symbol" viewBox="0 0 32 32" aria-hidden="true">
-          <path d="M3 7h18M12 7v18M27 7v18" />
-        </svg>
-        <span>just<span className="brand-type">type</span><span className="brand-period">.</span></span>
+      <div className="brand">
+        <img className="brand-logo" src={`/branding/wordmark-${theme}.svg`} alt="JustType" width={194} height={44} />
       </div>
       <div className="header-right">
         <span className="tagline">Find your rhythm.</span>

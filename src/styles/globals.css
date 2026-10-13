@@ -50,10 +50,8 @@ button svg { flex-shrink: 0; }
    widths. Keep the footer in normal flow so taller results never overlap it. */
 .app-shell { --page-gutter: clamp(32px, 2.5vw, 48px); width: 100%; min-height: 100svh; padding-block: clamp(28px, 3svh, 43px) clamp(22px, 2.4svh, 32px); display: flex; flex-direction: column; }
 .header { width: 100%; padding-inline: var(--page-gutter); display: flex; align-items: center; justify-content: space-between; }
-.brand { display: flex; align-items: center; gap: 11px; font-size: clamp(25px, 1.1vw, 30px); font-weight: 600; letter-spacing: -1.2px; color: var(--text); }
-.brand-symbol { width: clamp(29px, 1.25vw, 34px); height: clamp(29px, 1.25vw, 34px); fill: none; stroke: var(--accent); stroke-width: 2.6; stroke-linecap: round; }
-.brand-type { font-weight: 400; }
-.brand-period { color: var(--accent); }
+.brand { display: flex; align-items: center; flex-shrink: 0; }
+.brand-logo { display: block; width: clamp(160px, 10vw, 194px); height: clamp(36px, 2.3vw, 44px); object-fit: contain; object-position: left center; }
 .header-right { display: flex; align-items: center; gap: clamp(26px, 1.25vw, 32px); }
 .tagline { color: var(--faint); font-size: clamp(12px, .55vw, 14px); }
 .icon-button { color: var(--muted); padding: 8px; display: inline-flex; align-items: center; justify-content: center; border-radius: 5px; transition: color 140ms; }
@@ -207,8 +205,6 @@ kbd { font-family: var(--mono); font-size: clamp(10px, .45vw, 12px); font-weight
 }
 @media (max-width: 540px) {
   .app-shell { --page-gutter: 20px; padding-block: 22px 18px; }
-  .brand { font-size: 23px; gap: 9px; }
-  .brand-symbol { width: 26px; height: 26px; }
   .tagline { display: none; }
   .main-content { margin-top: 45px; margin-bottom: 40px; }
   .mode-selector { gap: 12px; padding: 7px 10px; margin-bottom: 35px; flex-wrap: wrap; }
