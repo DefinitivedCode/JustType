@@ -3,8 +3,10 @@ import { ArrowRight, ChevronDown, Trophy } from 'lucide-react'
 import type { TestResult } from '../lib/types'
 import { modeLabel } from '../lib/types'
 import { PerformanceChart } from './PerformanceChart'
+import { TypingReplay } from './TypingReplay'
+import type { Recording } from '../lib/replay'
 
-export function ResultsScreen({ result, isPersonalBest, restart }: { result: TestResult; isPersonalBest: boolean; restart: () => void }) {
+export function ResultsScreen({ result, recording, isPersonalBest, restart }: { result: TestResult; recording: Recording; isPersonalBest: boolean; restart: () => void }) {
   const region = useRef<HTMLElement>(null)
   const nextButton = useRef<HTMLButtonElement>(null)
   const [armed, setArmed] = useState(false)
@@ -33,6 +35,7 @@ export function ResultsScreen({ result, isPersonalBest, restart }: { result: Tes
         <div><dt>corrections</dt><dd>{result.correctedErrors}<span className="stat-caption">errors removed</span></dd></div>
         <div><dt>duration</dt><dd>{Number((result.durationMs / 1000).toFixed(1))}<span className="secondary-unit">s</span></dd></div>
       </dl>
+      <TypingReplay recording={recording} />
       <div className="next-test-controls"><button ref={nextButton} className="next-test-button" onClick={restart} onBlur={() => setArmed(false)}>Next test<ArrowRight size={17} /></button><span className="shortcut-hint"><kbd>tab</kbd><span>+</span><kbd>enter</kbd><span>{armed ? 'ready for the next one' : 'next test'}</span></span></div>
       <details className="statistics-explanation"><summary>How these numbers work<ChevronDown size={14} /></summary><div>
         <p><strong>WPM</strong> is currently correct characters, including spaces, divided by five and by elapsed minutes. <strong>Raw WPM</strong> uses all character inputs, including retyped characters. Backspace is excluded.</p>

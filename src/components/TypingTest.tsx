@@ -11,10 +11,13 @@ interface Props {
   session: number
   feedback: Feedback
   changeInput: (value: string) => void
+  keyDown: (key: string, code: string, repeat: boolean) => void
+  keyUp: (key: string, code: string) => void
+  blurInput: () => void
   restart: () => void
 }
 
-export function TypingTest({ state, session, feedback, changeInput, restart }: Props) {
+export function TypingTest({ state, session, feedback, changeInput, keyDown, keyUp, blurInput, restart }: Props) {
   const input = useRef<HTMLTextAreaElement>(null)
   const composing = useRef(false)
   const restartButton = useRef<HTMLButtonElement>(null)
@@ -39,7 +42,8 @@ export function TypingTest({ state, session, feedback, changeInput, restart }: P
           aria-describedby="typing-instructions typing-target" autoComplete="off" autoCorrect="off" autoCapitalize="off" spellCheck={false}
           inputMode="text" enterKeyHint="next"
           onFocus={() => { setFocused(true); input.current?.setSelectionRange(state.input.length, state.input.length) }}
-          onBlur={() => setFocused(false)}
+          onBlur={() => { setFocused(false); blurInput() }}
+          onKeyUp={(event) => keyUp(event.key, event.code)}
           onChange={(event) => {
             if (composing.current) setCompositionDraft(event.target.value)
             else changeInput(event.target.value)
@@ -49,6 +53,10 @@ export function TypingTest({ state, session, feedback, changeInput, restart }: P
           onCompositionEnd={(event) => { composing.current = false; setCompositionDraft(null); changeInput(event.currentTarget.value) }}
           onPaste={(event) => event.preventDefault()} onDrop={(event) => event.preventDefault()}
           onKeyDown={(event) => {
+            if (!composing.current && !event.nativeEvent.isComposing &&
+              (event.key === 'Backspace' || (!event.ctrlKey && !event.metaKey && !event.altKey))) {
+              keyDown(event.key, event.code, event.repeat)
+            }
             if (event.key === 'Tab' && !event.shiftKey) {
               event.preventDefault()
               setArmed(true)

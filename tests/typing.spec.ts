@@ -31,7 +31,7 @@ test('loads a focused, ready test with the default mode and no console errors', 
   await expect(page.getByRole('button', { name: '15 seconds', exact: true })).toHaveAttribute('aria-pressed', 'true')
   await expect(page.getByRole('textbox', { name: 'Type the displayed words' })).toBeFocused()
   await expect(page.getByRole('region', { name: 'Typing test' })).toHaveAttribute('data-status', 'ready')
-  await expect(page.locator('.keycap')).toHaveCount(27)
+  await expect(page.locator('.keycap')).toHaveCount(28)
   await page.clock.runFor(600)
   await expect(page.getByTestId('progress')).toHaveText('15')
   await page.evaluate(() => document.fonts.ready)
@@ -60,6 +60,9 @@ for (const seconds of [10, 15, 30, 60, 120]) {
     await expect(page.getByTestId('result-wpm')).toHaveText(String(Math.round(12 / seconds)))
     await expect(page.locator('.result-test-info')).toContainText(`${seconds} seconds`)
     await expect(page.locator('.secondary-results')).toContainText(`${seconds}s`)
+    await expect(page.getByTestId('replay')).toBeVisible()
+    await expect(page.getByTestId('typing-text')).toHaveAttribute('data-target', text)
+    await expect(page.getByRole('slider', { name: 'Replay timeline' })).toHaveAttribute('max', String(seconds * 1000))
   })
 }
 
@@ -76,6 +79,9 @@ for (const count of [10, 25, 50, 100]) {
     await expect(page.getByTestId('results')).toBeVisible()
     await expect(page.locator('.result-test-info')).toContainText(`${count} words`)
     await expect(page.getByTestId('result-wpm')).toHaveText(String(Math.round(text.length * 2.4)))
+    await expect(page.getByTestId('replay')).toBeVisible()
+    await expect(page.getByTestId('typing-text')).toHaveAttribute('data-target', text)
+    await expect(page.getByRole('slider', { name: 'Replay timeline' })).toHaveAttribute('max', '5000')
   })
 }
 

@@ -7,8 +7,9 @@ A minimal typing test built with Vite, React, strict TypeScript, and custom CSS.
 - Time tests: 10, 15, 30, 60, and 120 seconds. Word tests: 10, 25, 50, and 100 words.
 - Starts with the first letter or space. A monotonic clock controls the deadline; switching tabs does not pause a test.
 - Character-level correctness, backspace correction, an accurate caret, and a three-line viewport that follows the active line.
-- A responsive QWERTY keyboard with blue/red feedback and a spacebar. Real textarea input supports touch keyboards and composition; paste and drop are disabled.
+- A responsive QWERTY keyboard with blue/red feedback, a spacebar, and Backspace. Real textarea input supports touch keyboards and composition; paste and drop are disabled.
 - Results with speed, historical accuracy, consistency, character counts, correction counts, and a real SVG performance chart. Chart samples are also available as a screen-reader table.
+- Automatic typing replay with the original text, mistakes, corrections, caret, and full keyboard. Pause, restart, select 0.5×–2× speed, or drag the time slider forwards and backwards to rewind the actual actions. Recordings stay in memory for the current result only.
 - Dark/light themes, per-mode personal bests, and validated local preferences.
 - Locally bundled Geist and JetBrains Mono fonts. Reduced-motion support and keyboard-accessible controls.
 
@@ -80,3 +81,5 @@ Versioned keys: `justtype.mode.v1`, `justtype.theme.v1`, and `justtype.bests.v1`
 ## Structure
 
 `src/lib/typingEngine.ts` holds the pure state machine. `statistics.ts`, `wordGenerator.ts`, and `storage.ts` handle calculations, shuffled local word bags, and persistence. `useTypingTest` coordinates real input and the rendering clock. Components handle presentation and caret geometry; test metrics never inspect the DOM.
+
+`replay.ts` records focused input operations and physical keydown/keyup events against the same monotonic test clock. It stores exact edit snapshots and compiles searchable key intervals once, so forward and reverse reconstruction share one deterministic model. Touch/IME edits are recorded as input-source events when a browser supplies no physical key event. The key depression follows recorded keyup timing; colour feedback remains visible for at least 180ms, matching live input, and follows longer recorded holds. Missing keyups use the same 180ms fallback. Playback includes a brief final key-release tail without changing the displayed test duration. `useReplay` owns one cancellable animation frame loop; large seeks cross recorded actions in at most 180ms, including across long idle gaps.
