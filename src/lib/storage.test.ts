@@ -17,13 +17,15 @@ describe('validated local preferences and records', () => {
       expect(loadMode()).toEqual({ kind: 'time', value: 15 })
     }
     data.set('justtype.theme.v1', '"unknown"')
-    expect(loadTheme()).toBe('dark')
+    expect(loadTheme()).toBe('light')
   })
   it('persists supported mode and theme preferences', () => {
     saveMode({ kind: 'words', value: 50 })
-    saveTheme('light')
     expect(loadMode()).toEqual({ kind: 'words', value: 50 })
-    expect(loadTheme()).toBe('light')
+    for (const theme of ['light', 'dark'] as const) {
+      saveTheme(theme)
+      expect(loadTheme()).toBe(theme)
+    }
   })
   it('keeps the highest record separately for each mode', () => {
     expect(savePersonalBest(result())).toBe(true)
@@ -42,6 +44,7 @@ describe('validated local preferences and records', () => {
   it('works when browser storage throws', () => {
     vi.stubGlobal('localStorage', { getItem: () => { throw new Error('blocked') }, setItem: () => { throw new Error('full') } })
     expect(loadMode()).toEqual({ kind: 'time', value: 15 })
+    expect(loadTheme()).toBe('light')
     expect(() => saveMode({ kind: 'time', value: 10 })).not.toThrow()
     expect(() => savePersonalBest(result())).not.toThrow()
   })

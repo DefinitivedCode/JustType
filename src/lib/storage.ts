@@ -13,7 +13,7 @@ function write(key: string, value: unknown): void {
 }
 export function loadMode(): Mode { const value = read(KEYS.mode); return isMode(value) ? value : DEFAULT_MODE }
 export function saveMode(mode: Mode): void { write(KEYS.mode, mode) }
-export function loadTheme(): Theme { return read(KEYS.theme) === 'light' ? 'light' : 'dark' }
+export function loadTheme(): Theme { return read(KEYS.theme) === 'dark' ? 'dark' : 'light' }
 export function saveTheme(theme: Theme): void { write(KEYS.theme, theme) }
 export function modeKey(mode: Mode): string { return `${mode.kind}:${mode.value}` }
 

@@ -259,7 +259,7 @@ test('unfocused keys stay unrecorded, and replay cannot interfere with Tab then 
   await page.getByRole('button', { name: '10 seconds', exact: true }).click()
   const text = (await page.getByTestId('typing-text').getAttribute('data-target'))!
   await page.keyboard.type(text[0]!)
-  await page.getByRole('button', { name: 'Switch to light theme' }).click()
+  await page.getByRole('button', { name: 'Switch to dark theme' }).click()
   await page.keyboard.press('x')
   await page.clock.fastForward(10000)
   await page.getByRole('button', { name: 'Pause replay' }).click()
