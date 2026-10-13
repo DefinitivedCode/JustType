@@ -14,7 +14,7 @@ export default function App() {
   return (
     <div className="app-shell">
       <Header theme={theme} toggleTheme={() => setTheme((current) => current === 'dark' ? 'light' : 'dark')} />
-      <main>
+      <main className="main-content">
         <ModeSelector mode={state.mode} onChange={restart} />
         {state.result
           ? <ResultsScreen result={state.result} isPersonalBest={isPersonalBest} restart={() => restart()} />

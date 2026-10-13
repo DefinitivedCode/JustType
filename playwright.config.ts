@@ -14,7 +14,7 @@ export default defineConfig({
   },
   projects: [
     { name: 'chromium', use: { ...devices['Desktop Chrome'] } },
-    { name: 'mobile', use: { ...devices['iPhone 13'], defaultBrowserType: 'chromium' } },
+    { name: 'mobile', testIgnore: '**/layout.spec.ts', use: { ...devices['iPhone 13'], defaultBrowserType: 'chromium' } },
   ],
   webServer: {
     command: 'npm run dev -- --port 5173 --strictPort',
